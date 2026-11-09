@@ -103,7 +103,7 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
     const $ = (id) => document.getElementById(id);
-    const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#39;"}[c]));
+    function escapeHtml(value) { return String(value ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/\u0027/g,"&#39;"); }
     const characters = [
       {id:"guardian",name:"Guardián",icon:"🛡️",role:"Defensa",speed:300,passive:"Blindaje: las trampas te aturden menos tiempo.",active:"Escudo energético",activeDesc:"Bloquea impactos durante 3 segundos.",ultimate:"Fortaleza",ultimateDesc:"Escudo mejorado durante 6 segundos.",unlock:"Inicial"},
       {id:"runner",name:"Corredor",icon:"⚡",role:"Velocidad",speed:180,passive:"Paso ligero: te mueves más rápido.",active:"Impulso",activeDesc:"Avanza hasta 3 casillas.",ultimate:"Sobrecarga",ultimateDesc:"Aumenta tu velocidad durante 5 segundos.",unlock:"Inicial"},
@@ -313,8 +313,8 @@
         const online = presencePlayers();
         $("onlineCount").textContent = online.length + " / 2 conectados";
         $("roomStatus").textContent = online.length >= 2 ? "¡Los dos jugadores están conectados!" : "Esperando al segundo jugador…";
-        if (isHost && online.length >= 2 && !game) startGame(online);
-        if (isHost && game && !game.finished && online.length >= 2) sendState();
+        if (isHost && online.length >= 2 && !game) { const guest = online.find((p)=>p.id !== room.host_id); if (guest) room.guest_id = guest.id; startGame(online); }
+        if (isHost && game && !game.finished && online.length >= 2) { const guest = online.find((p)=>p.id !== room.host_id); if (guest) room.guest_id = guest.id; sendState(); }
         if (online.length < 2 && game && !game.finished) $("gameMessage").textContent = "El rival se ha desconectado. Esperando reconexión…";
       });
       channel.subscribe(async (status) => {
@@ -525,7 +525,8 @@
         if(data) profile=data;
         resultSaved=true;
         $("resultPanel").classList.remove("hidden");
-        $("resultPanel").innerHTML='<div class="eyebrow">Resultado guardado</div><h2>'+(won?"¡Victoria!":mine.score===rival.score?"Empate":"Sigue intentando")+'</h2><p class="muted small">Tu progreso y tus logros se han actualizado.</p>';
+        $("resultPanel").innerHTML='<div class="eyebrow">Resultado guardado</div><h2>'+(won?"¡Victoria!":mine.score===rival.score?"Empate":"Sigue intentando")+'</h2><p class="muted small">Tu progreso y tus logros se han actualizado.</p><button class="btn primary" id="backHomeBtn">Volver al centro de mando</button>';
+        $("backHomeBtn").addEventListener("click",()=>leaveRoom(true));
       } catch(error) {
         $("resultPanel").classList.remove("hidden");
         $("resultPanel").innerHTML='<div class="eyebrow">Resultado de partida</div><h2>'+(won?"¡Victoria!":mine.score===rival.score?"Empate":"Partida terminada")+'</h2><p class="muted small">No se pudo guardar el progreso: '+escapeHtml(error.message)+'</p><button class="btn secondary" id="retrySave">Reintentar guardado</button>';
