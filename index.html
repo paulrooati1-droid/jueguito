@@ -43,6 +43,7 @@
           <button class="btn primary full" id="authSubmit" type="submit">Entrar a la arena</button>
         </form>
         <div id="authNotice" aria-live="polite"></div>
+        <div id="confirmActions" class="hidden" style="margin-top:10px"><button class="btn secondary full" id="resendConfirmation" type="button">Reenviar correo de confirmación</button></div>
       </div>
     </section>
 
@@ -223,7 +224,8 @@
           const {data,error} = await supabase.auth.signUp({email,password,options:{data:{username}}});
           if (error) throw error;
           if (!data.session) {
-            notice("authNotice","Cuenta creada. Revisa tu correo para confirmar la dirección y después inicia sesión.","success");
+            notice("authNotice","Cuenta creada, pero falta confirmar el correo. Abre el mensaje que enviamos a "+email+" y pulsa el enlace. Después podrás iniciar sesión.","success");
+            $("confirmActions").classList.remove("hidden");
             setAuthMode("login");
           } else {
             user = data.user;
@@ -237,6 +239,7 @@
         }
       } catch (error) {
         notice("authNotice",error.message || "No se pudo completar el acceso.","error");
+        if (/email not confirmed/i.test(error.message || "")) $("confirmActions").classList.remove("hidden");
       } finally {
         $("authSubmit").disabled = false;
         $("authSubmit").textContent = authMode === "signup" ? "Crear mi cuenta" : "Entrar a la arena";
@@ -613,6 +616,19 @@
     $("loginTab").addEventListener("click",()=>setAuthMode("login"));
     $("signupTab").addEventListener("click",()=>setAuthMode("signup"));
     $("authForm").addEventListener("submit",handleAuth);
+    $("resendConfirmation").addEventListener("click",async()=>{
+      const email=$("email").value.trim();
+      if(!email){notice("authNotice","Escribe tu correo para reenviar la confirmación.","error");return;}
+      const button=$("resendConfirmation");
+      button.disabled=true;
+      try{
+        const {error}=await supabase.auth.resend({type:"signup",email});
+        if(error) throw error;
+        notice("authNotice","Solicitud enviada. Revisa tu bandeja de entrada y la carpeta de spam.","success");
+      }catch(error){
+        notice("authNotice",error.message || "No se pudo reenviar el correo.","error");
+      }finally{button.disabled=false;}
+    });
     $("logoutBtn").addEventListener("click",logout);
     $("createRoomBtn").addEventListener("click",createRoom);
     $("joinRoomBtn").addEventListener("click",joinRoom);
