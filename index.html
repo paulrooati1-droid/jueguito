@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d19">
+  <meta name="description" content="NEXUS ARENA: recoge núcleos, usa habilidades y compite en tiempo real con tus amigos.">
+  <title>NEXUS ARENA — Multiplayer</title>
+  <style>
+    :root{color-scheme:dark;--bg:#080d19;--panel:#101a2c;--panel2:#14213a;--line:#263754;--text:#eef5ff;--muted:#9aacc7;--cyan:#39d8f2;--purple:#a78bfa;--gold:#ffd166;--green:#74e0b1;--red:#ff7285}
+    *{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(ellipse at 15% 0%,#16365b66,transparent 38%),radial-gradient(ellipse at 90% 20%,#502e6e44,transparent 35%),linear-gradient(160deg,#080d19,#0c1425 60%,#090f1c)}
+    button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.hidden{display:none!important}.wrap{width:min(1120px,calc(100% - 32px));margin:0 auto}
+    .topbar{height:72px;border-bottom:1px solid #26375488;background:#080d19aa;backdrop-filter:blur(14px);position:sticky;top:0;z-index:20}.topinner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:.14em;font-size:15px}.brandmark{width:38px;height:38px;display:grid;place-items:center;border:1px solid #3cdefc88;border-radius:12px;color:var(--cyan);background:linear-gradient(145deg,#153b59,#1c1a42);box-shadow:0 0 24px #24cbe733;font-size:20px}.topright{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}.pill{border:1px solid var(--line);background:#111d31;border-radius:99px;padding:7px 11px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:6px;box-shadow:0 0 9px var(--green)}
+    main{padding:34px 0 64px}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:.22em;font-weight:800;text-transform:uppercase}.hero{display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:30px;padding:25px 0 36px}.hero h1{font-size:clamp(42px,7vw,78px);line-height:.95;letter-spacing:-.06em;margin:12px 0 18px}.hero h1 span{color:var(--cyan);text-shadow:0 0 32px #39d8f244}.hero p{color:var(--muted);line-height:1.65;max-width:570px;margin:0 0 22px}.heroart{min-height:260px;border:1px solid #335173;border-radius:28px;background:radial-gradient(circle at 50% 45%,#2f9ed533,transparent 45%),linear-gradient(135deg,#101e35,#17162f);position:relative;overflow:hidden;display:grid;place-items:center}.heroart:before,.heroart:after{content:"";position:absolute;inset:18%;border:1px solid #2dd5f333;border-radius:50%;transform:rotateX(68deg) rotateZ(20deg)}.heroart:after{inset:27%;border-color:#a78bfa55;transform:rotateX(68deg) rotateZ(-30deg)}.arena-orb{font-size:100px;filter:drop-shadow(0 0 30px #39d8f2aa);z-index:1}.orbit{position:absolute;width:12px;height:12px;background:var(--gold);border-radius:50%;box-shadow:0 0 18px var(--gold)}.orbit.one{top:24%;left:24%}.orbit.two{bottom:22%;right:23%;background:var(--purple);box-shadow:0 0 18px var(--purple)}
+    .grid{display:grid;gap:18px}.cols2{grid-template-columns:1fr 1fr}.cols3{grid-template-columns:repeat(3,1fr)}.panel{background:linear-gradient(145deg,#111d31ed,#0d1728ed);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 18px 45px #0002}.panel h2,.panel h3{margin:0 0 8px}.muted{color:var(--muted)}.small{font-size:12px}.sectionhead{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:26px 0 14px}.sectionhead h2{font-size:22px;margin:0;letter-spacing:-.03em}.field{display:grid;gap:7px;margin:12px 0}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input{width:100%;border-radius:12px;border:1px solid #354766;background:#091323;color:var(--text);padding:13px 14px;outline:none}.field input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #39d8f222}.btn{border:1px solid transparent;border-radius:12px;padding:11px 16px;font-weight:800;transition:.18s transform,.18s filter}.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}.primary{color:#06121c;background:linear-gradient(110deg,#55e5f4,#82f0cc);box-shadow:0 8px 22px #39d8f222}.secondary{background:#17263d;color:var(--text);border-color:#314564}.ghost{background:transparent;border-color:#334965;color:var(--muted)}.danger{background:#3a1826;border-color:#773246;color:#ffb4c0}.full{width:100%}.row{display:flex;align-items:center;gap:10px}.between{justify-content:space-between}.authbox{max-width:480px;margin:34px auto}.authswitch{display:flex;gap:7px;margin-bottom:18px}.authswitch button{flex:1}.notice{border:1px solid #3a5975;background:#10243a;color:#cce9f8;padding:11px 13px;border-radius:12px;margin:10px 0;font-size:13px;line-height:1.45}.notice.error{border-color:#7a3343;background:#321a27;color:#ffc1cc}.notice.success{border-color:#236b5c;background:#102b2a;color:#aaf1d6}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{border:1px solid #293d5a;background:#0b1628;border-radius:14px;padding:13px}.stat strong{font-size:23px;display:block}.stat span{font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}.character-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.character{border:1px solid #2c4262;background:linear-gradient(145deg,#14243b,#10182a);border-radius:17px;padding:15px;min-width:0;cursor:pointer;position:relative;transition:.18s}.character:hover{transform:translateY(-3px);border-color:#5e91b2}.character.selected{border-color:var(--cyan);box-shadow:0 0 0 2px #39d8f233,0 10px 28px #39d8f21b}.character.locked{opacity:.58;cursor:default}.character .emoji{height:78px;display:grid;place-items:center;font-size:54px;background:radial-gradient(circle,#28527766,transparent 70%);border-radius:12px;margin-bottom:10px}.character b{display:block}.character .role{color:var(--cyan);font-size:10px;letter-spacing:.14em;font-weight:900;text-transform:uppercase}.character p{font-size:11px;line-height:1.45;color:var(--muted);min-height:46px;margin:7px 0}.tag{display:inline-block;border:1px solid #395371;border-radius:99px;padding:4px 8px;font-size:10px;color:#b5cae5}
+    .room-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}.codebox{font-size:26px;letter-spacing:.25em;font-weight:900;color:var(--gold);background:#090f1b;border:1px dashed #826b3c;border-radius:14px;padding:13px;text-align:center}.game-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:16px;align-items:start}.gameboard-wrap{background:#0a1424;border:1px solid #2c4566;border-radius:20px;padding:14px;box-shadow:inset 0 0 40px #0004}.board{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;aspect-ratio:12/8;width:100%}.cell{position:relative;border:1px solid #233b5b;border-radius:6px;background:linear-gradient(145deg,#101e32,#0d192b);display:grid;place-items:center;min-width:0;min-height:0}.cell.base1{background:#11394b;border-color:#2794a9}.cell.base2{background:#30214d;border-color:#9169d2}.cell.core:after{content:"";width:35%;height:35%;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold)}.cell.trap:after{content:"✳";color:#ff7589;font-size:clamp(10px,2vw,18px)}.pawn{width:70%;height:70%;border-radius:9px;display:grid;place-items:center;font-size:clamp(11px,2.7vw,23px);z-index:2;box-shadow:0 0 15px #0009}.pawn.me{border:2px solid #65ebff;background:#164c67;box-shadow:0 0 15px #39d8f2aa}.pawn.enemy{border:2px solid #c0a1ff;background:#452b70;box-shadow:0 0 15px #a78bfa99}.pawn.shield{outline:2px solid var(--gold);outline-offset:2px}.boardlegend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:11px;padding:12px 2px 0}.game-side{display:grid;gap:12px}.playercard{border:1px solid #2b4261;background:#111f34;border-radius:15px;padding:14px}.playercard.active{border-color:var(--cyan)}.playerline{display:flex;align-items:center;justify-content:space-between;gap:8px}.energy{height:7px;background:#24344d;border-radius:99px;overflow:hidden;margin:8px 0}.energy>i{display:block;height:100%;background:linear-gradient(90deg,#5c91ff,#5ee7f0);border-radius:99px}.skillbtn{width:100%;text-align:left;margin-top:7px;padding:10px 11px;border-radius:11px;border:1px solid #344b6a;background:#0d192b;color:var(--text);font-size:12px}.skillbtn strong{display:block;margin-bottom:2px}.skillbtn:disabled{opacity:.42}.timer{font-size:35px;font-weight:900;letter-spacing:-.06em;color:var(--gold)}.mobile-controls{display:none;grid-template-columns:repeat(3,52px);gap:7px;justify-content:center;margin:12px auto}.mobile-controls button{height:46px;border-radius:11px;background:#162942;border:1px solid #3a5679;color:white;font-size:17px}.result{border:1px solid #8c7440;background:linear-gradient(120deg,#332916,#18243a);border-radius:16px;padding:18px;text-align:center}.result h2{font-size:28px;margin:2px 0 6px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:50;background:#162b43;border:1px solid #477094;border-radius:12px;padding:12px 18px;box-shadow:0 12px 35px #0008;font-size:13px;max-width:min(90vw,600px);text-align:center}.hide-mobile{display:block}
+    @media(max-width:850px){.hero{grid-template-columns:1fr}.heroart{min-height:205px}.character-grid{grid-template-columns:repeat(2,1fr)}.game-layout{grid-template-columns:1fr}.game-side{grid-template-columns:1fr 1fr}.mobile-controls{display:grid}.cols3{grid-template-columns:1fr}.topright .hide-mobile{display:none}}
+    @media(max-width:560px){.wrap{width:min(100% - 20px,1120px)}main{padding-top:18px}.panel{padding:16px}.hero{padding:10px 0 22px}.heroart{min-height:165px}.arena-orb{font-size:75px}.cols2,.room-actions{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.game-side{grid-template-columns:1fr}.board{gap:3px}.gameboard-wrap{padding:8px}.cell{border-radius:4px}.topbar{height:62px}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topinner">
+      <div class="brand"><div class="brandmark">✦</div><span>NEXUS <span style="color:var(--cyan)">ARENA</span></span></div>
+      <div class="topright"><span class="pill"><i class="dot"></i><span id="connectionLabel">Conectando</span></span><span class="pill hide-mobile" id="navUser">Invitado</span><button class="btn ghost hidden" id="logoutBtn">Salir</button></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="authView">
+      <div class="hero">
+        <div><div class="eyebrow">Multiplayer arena · temporada 01</div><h1>JUEGA.<br><span>COMPITE.</span><br>DOMINA.</h1><p>Entra a la arena, recoge núcleos y vuelve a tu base antes que tu rival. Cada personaje tiene una forma distinta de ganar. ¿Tienes lo necesario?</p><div class="row"><span class="tag">2 jugadores</span><span class="tag">Tiempo real</span><span class="tag">7 clases</span></div></div>
+        <div class="heroart"><div class="orbit one"></div><div class="orbit two"></div><div class="arena-orb">⚡</div></div>
+      </div>
+      <div class="panel authbox">
+        <div class="eyebrow">Identificación de jugador</div><h2 style="margin:8px 0 4px">Entra a NEXUS</h2><p class="muted small">Crea una cuenta para guardar tus victorias, experiencia y personajes.</p>
+        <div class="authswitch"><button class="btn primary" id="loginTab">Iniciar sesión</button><button class="btn secondary" id="signupTab">Crear cuenta</button></div>
+        <form id="authForm">
+          <div class="field hidden" id="usernameField"><label for="username">NOMBRE DE JUGADOR</label><input id="username" minlength="3" maxlength="18" autocomplete="nickname" placeholder="Ej. NovaStrike"></div>
+          <div class="field"><label for="email">CORREO ELECTRÓNICO</label><input id="email" type="email" autocomplete="email" required placeholder="correo@ejemplo.com"></div>
+          <div class="field"><label for="password">CONTRASEÑA</label><input id="password" type="password" minlength="6" autocomplete="current-password" required placeholder="Mínimo 6 caracteres"></div>
+          <button class="btn primary full" id="authSubmit" type="submit">Entrar a la arena</button>
+        </form>
+        <div id="authNotice" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="homeView" class="hidden">
+      <div class="row between" style="margin-bottom:20px;flex-wrap:wrap">
+        <div><div class="eyebrow">Centro de mando</div><h1 style="font-size:clamp(30px,5vw,48px);margin:5px 0">Hola, <span id="welcomeName" style="color:var(--cyan)">Jugador</span></h1><p class="muted small" style="margin:0">Prepara tu equipo. La arena te espera.</p></div>
+        <div class="pill">Nivel <b id="levelValue" style="color:var(--gold)">1</b> · <span id="xpValue">0 XP</span></div>
+      </div>
+      <div class="stats" style="margin-bottom:20px">
+        <div class="stat"><strong id="statWins">0</strong><span>Victorias</span></div><div class="stat"><strong id="statMatches">0</strong><span>Partidas</span></div><div class="stat"><strong id="statCores">0</strong><span>Núcleos</span></div><div class="stat"><strong id="statLosses">0</strong><span>Derrotas</span></div>
+      </div>
+      <div class="sectionhead"><div><div class="eyebrow">Tu combatiente</div><h2>Selecciona una clase</h2></div><span class="tag" id="classCount">3 disponibles</span></div>
+      <div class="character-grid" id="characterGrid"></div>
+      <div class="sectionhead"><div><div class="eyebrow">Encuentra una partida</div><h2>Conecta con tu rival</h2></div></div>
+      <div class="room-actions">
+        <div class="panel"><div class="row"><span style="font-size:26px">✦</span><div><h3>Crear sala</h3><p class="muted small" style="margin:0">Invita a un amigo con un código privado.</p></div></div><button class="btn primary full" id="createRoomBtn" style="margin-top:16px">Crear nueva sala</button></div>
+        <div class="panel"><div class="row"><span style="font-size:26px">⌁</span><div><h3>Unirse a sala</h3><p class="muted small" style="margin:0">Introduce el código que te compartieron.</p></div></div><div class="field"><input id="roomCodeInput" maxlength="8" placeholder="CÓDIGO DE 8 CARACTERES" style="text-transform:uppercase;letter-spacing:.16em;text-align:center"></div><button class="btn secondary full" id="joinRoomBtn">Unirme a la partida</button></div>
+      </div>
+      <div id="homeNotice" aria-live="polite"></div>
+      <div class="sectionhead"><div><div class="eyebrow">Progreso</div><h2>Tu siguiente desbloqueo</h2></div></div>
+      <div class="panel" id="achievementPanel"></div>
+    </section>
+
+    <section id="gameView" class="hidden">
+      <div class="row between" style="margin-bottom:14px;flex-wrap:wrap">
+        <div><div class="eyebrow">Nexus arena · duelo privado</div><h2 style="margin:5px 0" id="gameTitle">Sala de espera</h2><p class="muted small" style="margin:0" id="gameSubtitle">Comparte el código con tu rival.</p></div>
+        <button class="btn ghost" id="leaveRoomBtn">← Salir de la sala</button>
+      </div>
+      <div id="waitingPanel" class="panel" style="margin-bottom:14px">
+        <div class="eyebrow">Código de invitación</div><div class="codebox" id="roomCodeDisplay">--------</div>
+        <p class="muted small" style="text-align:center;margin:10px 0 0">Tu amigo debe iniciar sesión y escribir este código en «Unirse a sala».</p>
+        <div class="row between" style="margin-top:17px"><span id="roomStatus" class="muted small">Esperando al segundo jugador…</span><span class="tag" id="onlineCount">1 / 2 conectados</span></div>
+      </div>
+      <div class="result hidden" id="resultPanel" aria-live="polite"></div>
+      <div class="game-layout">
+        <div class="gameboard-wrap">
+          <div class="row between" style="margin-bottom:10px"><span class="eyebrow">Campo de energía</span><span class="tag">12 × 8 · 90 segundos</span></div>
+          <div id="board" class="board" aria-label="Tablero de juego"></div>
+          <div class="boardlegend"><span>🟡 Núcleo</span><span>🛡️ Tu base</span><span>💜 Base rival</span><span>✳ Trampa</span></div>
+          <div class="mobile-controls" aria-label="Controles táctiles"><span></span><button data-move="0,-1">↑</button><span></span><button data-move="-1,0">←</button><button data-move="0,1">↓</button><button data-move="1,0">→</button></div>
+          <p class="muted small" style="text-align:center;margin:3px 0 0">Mover: WASD / flechas · Habilidad: E · Definitiva: ESPACIO</p>
+        </div>
+        <aside class="game-side">
+          <div class="playercard active"><div class="playerline"><b>⏱ Tiempo</b><span id="timer" class="timer">01:30</span></div><p id="gameMessage" class="muted small" style="margin:3px 0 0">Esperando jugadores…</p></div>
+          <div id="playersPanel"></div>
+          <div class="panel"><div class="eyebrow">Tus habilidades</div><div id="skillPanel"></div></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+
+    const SUPABASE_URL = "https://bfymhhhtisnpjbrrepun.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_bR8APTlOlGgO0cChCqz7FA_Saehu9qq";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+    const $ = (id) => document.getElementById(id);
+    const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#39;"}[c]));
+    const characters = [
+      {id:"guardian",name:"Guardián",icon:"🛡️",role:"Defensa",speed:300,passive:"Blindaje: las trampas te aturden menos tiempo.",active:"Escudo energético",activeDesc:"Bloquea impactos durante 3 segundos.",ultimate:"Fortaleza",ultimateDesc:"Escudo mejorado durante 6 segundos.",unlock:"Inicial"},
+      {id:"runner",name:"Corredor",icon:"⚡",role:"Velocidad",speed:180,passive:"Paso ligero: te mueves más rápido.",active:"Impulso",activeDesc:"Avanza hasta 3 casillas.",ultimate:"Sobrecarga",ultimateDesc:"Aumenta tu velocidad durante 5 segundos.",unlock:"Inicial"},
+      {id:"engineer",name:"Ingeniero",icon:"🧰",role:"Estrategia",speed:240,passive:"Escáner: puedes ver las trampas del mapa.",active:"Mina eléctrica",activeDesc:"Deja una mina que aturde al rival.",ultimate:"Interferencia",ultimateDesc:"Aturde al rival durante 2 segundos.",unlock:"Inicial"},
+      {id:"magnetist",name:"Magnetista",icon:"🧲",role:"Recolección",speed:240,passive:"Imán: atrae núcleos cercanos al recoger.",active:"Atracción",activeDesc:"Recoge núcleos a 2 casillas.",ultimate:"Tormenta magnética",ultimateDesc:"Atrae todos los núcleos a 3 casillas.",unlock:"200 núcleos"},
+      {id:"illusionist",name:"Ilusionista",icon:"🪄",role:"Engaño",speed:230,passive:"Desaparece del radar al no cargar núcleos.",active:"Espejismo",activeDesc:"Obtiene escudo e invisibilidad breves.",ultimate:"Doble presencia",ultimateDesc:"Se vuelve intangible durante 4 segundos.",unlock:"15 partidas"},
+      {id:"saboteur",name:"Saboteador",icon:"🕶️",role:"Control",speed:240,passive:"Detecta trampas cercanas.",active:"Pulso EMP",activeDesc:"Interrumpe al rival cercano.",ultimate:"Apagón",ultimateDesc:"Aturde al rival durante 3 segundos.",unlock:"10 victorias"},
+      {id:"portalero",name:"Portalero",icon:"🌀",role:"Movilidad",speed:220,passive:"Conoce atajos dimensionales.",active:"Salto de portal",activeDesc:"Teletranspórtate a tu base.",ultimate:"Red de portales",ultimateDesc:"Vuelve a la base y entrega tus núcleos.",unlock:"5 partidas con cada clase inicial"}
+    ];
+    let user = null, profile = null, selectedCharacter = "guardian", authMode = "login";
+    let room = null, channel = null, isHost = false, game = null, tickTimer = null, toastTimer = null, resultSaved = false;
+    let lastGuestMove = 0, lastGuestAbility = 0, savingResult = false;
+
+    function notice(target, message, type="") {
+      const box = $(target);
+      box.innerHTML = message ? '<div class="notice '+type+'">'+escapeHtml(message)+'</div>' : "";
+    }
+    function toast(message) {
+      $("toast").textContent = message;
+      $("toast").classList.remove("hidden");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => $("toast").classList.add("hidden"), 2600);
+    }
+    function setConnection(text, good=false) {
+      $("connectionLabel").textContent = text;
+      const dot = document.querySelector(".topright .dot");
+      dot.style.background = good ? "var(--green)" : "var(--gold)";
+      dot.style.boxShadow = good ? "0 0 9px var(--green)" : "0 0 9px var(--gold)";
+    }
+    function showView(view) {
+      ["authView","homeView","gameView"].forEach((id) => $(id).classList.toggle("hidden", id !== view));
+    }
+    function setAuthMode(mode) {
+      authMode = mode;
+      const signup = mode === "signup";
+      $("usernameField").classList.toggle("hidden", !signup);
+      $("loginTab").className = "btn " + (signup ? "secondary" : "primary");
+      $("signupTab").className = "btn " + (signup ? "primary" : "secondary");
+      $("authSubmit").textContent = signup ? "Crear mi cuenta" : "Entrar a la arena";
+      $("password").autocomplete = signup ? "new-password" : "current-password";
+      notice("authNotice","");
+    }
+    async function ensureProfile(currentUser) {
+      const {data, error} = await supabase.from("profiles").select("*").eq("id", currentUser.id).maybeSingle();
+      if (error) throw error;
+      if (data) return data;
+      const metaName = currentUser.user_metadata?.username || currentUser.email?.split("@")[0] || "Jugador";
+      const cleanName = String(metaName).replace(/[^a-zA-Z0-9_-]/g,"").slice(0,18) || "Jugador";
+      const {data:created,error:createError} = await supabase.from("profiles").insert({id:currentUser.id,username:cleanName}).select().single();
+      if (createError) throw createError;
+      return created;
+    }
+    async function loadHome() {
+      profile = await ensureProfile(user);
+      $("navUser").textContent = profile.username;
+      $("navUser").classList.remove("hidden");
+      $("logoutBtn").classList.remove("hidden");
+      $("welcomeName").textContent = profile.username;
+      const level = Math.floor(profile.xp / 500) + 1;
+      $("levelValue").textContent = level;
+      $("xpValue").textContent = profile.xp + " XP";
+      $("statWins").textContent = profile.wins;
+      $("statMatches").textContent = profile.matches_played;
+      $("statCores").textContent = profile.total_cores;
+      $("statLosses").textContent = profile.losses;
+      renderCharacters();
+      renderAchievements();
+      showView("homeView");
+    }
+    function renderCharacters() {
+      const unlocked = profile?.unlocked_characters || ["guardian","runner","engineer"];
+      if (!unlocked.includes(selectedCharacter)) selectedCharacter = "guardian";
+      $("classCount").textContent = unlocked.length + " / 7 disponibles";
+      $("characterGrid").innerHTML = characters.map((c) => {
+        const open = unlocked.includes(c.id);
+        const chosen = selectedCharacter === c.id;
+        return '<article class="character '+(open?"":"locked")+' '+(chosen?"selected":"")+'" data-character="'+c.id+'">'+
+          '<div class="emoji">'+c.icon+'</div><span class="role">'+escapeHtml(c.role)+'</span><b>'+escapeHtml(c.name)+'</b>'+
+          '<p>'+escapeHtml(c.passive)+'</p><span class="tag">'+(open?"✓ Disponible":"🔒 "+escapeHtml(c.unlock))+'</span></article>';
+      }).join("");
+      document.querySelectorAll("[data-character]").forEach((card) => card.addEventListener("click", () => {
+        const id = card.dataset.character;
+        if (!(profile?.unlocked_characters || []).includes(id)) {
+          toast("Desbloquéalo: " + characters.find((c)=>c.id===id).unlock);
+          return;
+        }
+        selectedCharacter = id;
+        renderCharacters();
+        toast("Seleccionaste " + characters.find((c)=>c.id===id).name);
+      }));
+    }
+    function renderAchievements() {
+      const goals = [
+        {name:"Magnetista",goal:"Entrega 200 núcleos",progress:profile.total_cores,required:200,id:"magnetist"},
+        {name:"Ilusionista",goal:"Completa 15 partidas",progress:profile.matches_played,required:15,id:"illusionist"},
+        {name:"Saboteador",goal:"Gana 10 partidas",progress:profile.wins,required:10,id:"saboteur"},
+        {name:"Portalero",goal:"Juega 5 partidas con cada clase inicial",progress:null,required:null,id:"portalero"}
+      ];
+      const unlocked = profile.unlocked_characters || [];
+      $("achievementPanel").innerHTML = goals.map((g) => {
+        const open = unlocked.includes(g.id);
+        const pct = g.required ? Math.min(100,Math.round(g.progress/g.required*100)) : 0;
+        return '<div style="margin:10px 0 15px"><div class="row between"><b>'+g.name+'</b><span class="tag">'+(open?"Desbloqueado":g.required?(g.progress+" / "+g.required):"En progreso")+'</span></div><p class="muted small" style="margin:5px 0">'+g.goal+'</p>'+(g.required?'<div class="energy"><i style="width:'+pct+'%"></i></div>':"")+'</div>';
+      }).join("");
+    }
+    async function handleAuth(event) {
+      event.preventDefault();
+      const email = $("email").value.trim();
+      const password = $("password").value;
+      const username = $("username").value.trim();
+      $("authSubmit").disabled = true;
+      $("authSubmit").textContent = "Conectando…";
+      notice("authNotice","");
+      try {
+        if (authMode === "signup") {
+          if (username.length < 3) throw new Error("Tu nombre debe tener al menos 3 caracteres.");
+          const {data,error} = await supabase.auth.signUp({email,password,options:{data:{username}}});
+          if (error) throw error;
+          if (!data.session) {
+            notice("authNotice","Cuenta creada. Revisa tu correo para confirmar la dirección y después inicia sesión.","success");
+            setAuthMode("login");
+          } else {
+            user = data.user;
+            await loadHome();
+          }
+        } else {
+          const {data,error} = await supabase.auth.signInWithPassword({email,password});
+          if (error) throw error;
+          user = data.user;
+          await loadHome();
+        }
+      } catch (error) {
+        notice("authNotice",error.message || "No se pudo completar el acceso.","error");
+      } finally {
+        $("authSubmit").disabled = false;
+        $("authSubmit").textContent = authMode === "signup" ? "Crear mi cuenta" : "Entrar a la arena";
+      }
+    }
+    async function logout() {
+      await leaveRoom(false);
+      await supabase.auth.signOut();
+      user = null; profile = null;
+      $("navUser").textContent = "Invitado";
+      $("navUser").classList.add("hidden");
+      $("logoutBtn").classList.add("hidden");
+      showView("authView");
+      setConnection("Conectado",true);
+    }
+    async function createRoom() {
+      $("createRoomBtn").disabled = true;
+      try {
+        const {data,error} = await supabase.rpc("create_game_room");
+        if (error) throw error;
+        room = data;
+        isHost = true;
+        await enterRoom();
+      } catch (error) {
+        notice("homeNotice",error.message || "No se pudo crear la sala.","error");
+      } finally { $("createRoomBtn").disabled = false; }
+    }
+    async function joinRoom() {
+      const code = $("roomCodeInput").value.trim().toUpperCase();
+      if (!/^[A-F0-9]{8}$/.test(code)) {
+        notice("homeNotice","Escribe un código válido de 8 caracteres.","error");
+        return;
+      }
+      $("joinRoomBtn").disabled = true;
+      try {
+        const {data,error} = await supabase.rpc("join_game_room",{p_code:code});
+        if (error) throw error;
+        room = data;
+        isHost = room.host_id === user.id;
+        await enterRoom();
+      } catch (error) {
+        notice("homeNotice",error.message || "No se pudo entrar a la sala.","error");
+      } finally { $("joinRoomBtn").disabled = false; }
+    }
+    async function enterRoom() {
+      resultSaved = false; game = null;
+      $("roomCodeDisplay").textContent = room.code;
+      $("waitingPanel").classList.remove("hidden");
+      $("resultPanel").classList.add("hidden");
+      $("gameTitle").textContent = isHost ? "Sala creada" : "Te uniste a la sala";
+      $("gameSubtitle").textContent = "Comparte el código y espera a que ambos estén conectados.";
+      $("roomStatus").textContent = "Conectando con la arena…";
+      $("onlineCount").textContent = "1 / 2 conectados";
+      $("board").innerHTML = "";
+      $("playersPanel").innerHTML = "";
+      $("skillPanel").innerHTML = "";
+      $("timer").textContent = "01:30";
+      showView("gameView");
+      await connectChannel();
+    }
+    function presencePlayers() {
+      if (!channel) return [];
+      const state = channel.presenceState();
+      return Object.keys(state).map((key) => {
+        const item = state[key]?.[0] || {};
+        return {id:key,username:item.username || "Jugador",character:item.character || "guardian"};
+      });
+    }
+    async function connectChannel() {
+      if (channel) await supabase.removeChannel(channel);
+      channel = supabase.channel("nexus-room-"+room.code,{config:{broadcast:{self:false},presence:{key:user.id}}});
+      channel.on("broadcast",{event:"message"},({payload}) => handleMessage(payload));
+      channel.on("presence",{event:"sync"},() => {
+        const online = presencePlayers();
+        $("onlineCount").textContent = online.length + " / 2 conectados";
+        $("roomStatus").textContent = online.length >= 2 ? "¡Los dos jugadores están conectados!" : "Esperando al segundo jugador…";
+        if (isHost && online.length >= 2 && !game) startGame(online);
+        if (isHost && game && !game.finished && online.length >= 2) sendState();
+        if (online.length < 2 && game && !game.finished) $("gameMessage").textContent = "El rival se ha desconectado. Esperando reconexión…";
+      });
+      channel.subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          setConnection("Arena conectada",true);
+          await channel.track({username:profile.username,character:selectedCharacter,joined_at:new Date().toISOString()});
+          $("roomStatus").textContent = "Conectado. Comparte el código con tu rival.";
+          $("gameMessage").textContent = "Esperando jugadores…";
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          setConnection("Reintentando",false);
+          toast("La conexión de la sala tuvo un problema.");
+        }
+      });
+    }
+    function sendMessage(payload) {
+      if (!channel) return;
+      channel.send({type:"broadcast",event:"message",payload}).catch(()=>{});
+    }
+    function startGame(online) {
+      if (!isHost || game) return;
+      const guest = online.find((p)=>p.id !== room.host_id);
+      if (!guest) return;
+      const a = room.host_id, b = guest.id;
+      game = {
+        started:true,finished:false,timeLeft:90,cores:[],traps:[],players:{},
+        playersMeta:{},
+        hostId:a,guestId:b,
+        playersInitialized:true
+      };
+      game.players[a] = newPlayer(1,3);
+      game.players[b] = newPlayer(10,4);
+      game.playersMeta[a] = {username:profile.username,character:selectedCharacter};
+      game.playersMeta[b] = {username:guest.username,character:guest.character};
+      for(let i=0;i<5;i++) spawnCore();
+      $("waitingPanel").classList.add("hidden");
+      $("gameTitle").textContent = "¡La arena está activa!";
+      $("gameSubtitle").textContent = "Recoge núcleos amarillos y llévalos a tu base.";
+      $("gameMessage").textContent = "¡Corre, recoge y entrega!";
+      sendState();
+      renderGame();
+      clearInterval(tickTimer);
+      tickTimer = setInterval(hostTick,1000);
+      toast("¡Partida iniciada! Buena suerte.");
+    }
+    function newPlayer(x,y) {
+      return {x,y,score:0,carried:0,energy:0,shieldUntil:0,stunUntil:0,speedUntil:0,invisibleUntil:0,jammedUntil:0,lastMoveAt:0,lastActiveAt:0};
+    }
+    function spawnCore() {
+      if (!game || game.cores.length >= 7) return;
+      let x,y,tries=0;
+      do { x=1+Math.floor(Math.random()*10); y=Math.floor(Math.random()*8); tries++; }
+      while (tries<40 && game.cores.some((c)=>c.x===x&&c.y===y));
+      game.cores.push({id:Date.now()+"-"+Math.random(),x,y});
+    }
+    function myBase(pid) { return pid === game.hostId ? {x:0,y:3} : {x:11,y:4}; }
+    function applyStep(pid,dx,dy,force=false) {
+      const p = game.players[pid];
+      if (!p || game.finished) return;
+      const now = Date.now();
+      if (!force && p.stunUntil > now) return;
+      const charId = game.playersMeta[pid]?.character || "guardian";
+      const c = characters.find((x)=>x.id===charId) || characters[0];
+      const speed = p.speedUntil > now ? Math.max(100,c.speed*0.65) : c.speed;
+      if (!force && now-p.lastMoveAt < speed) return;
+      const nx=Math.max(0,Math.min(11,p.x+dx)), ny=Math.max(0,Math.min(7,p.y+dy));
+      const rivalId=pid===game.hostId?game.guestId:game.hostId;
+      const rival=game.players[rivalId];
+      if (rival && rival.x===nx && rival.y===ny) {
+        if (rival.shieldUntil < now) rival.stunUntil = Math.max(rival.stunUntil,now+350);
+        p.lastMoveAt=now;
+        return;
+      }
+      p.x=nx;p.y=ny;p.lastMoveAt=now;
+      const trapIndex=game.traps.findIndex((t)=>t.x===nx&&t.y===ny&&t.owner!==pid&&t.expires>now);
+      if (trapIndex>=0) {
+        p.stunUntil=now+(charId==="guardian"?450:1300);
+        game.traps.splice(trapIndex,1);
+        toast("¡Una mina te ha detenido!");
+      }
+      const coreIndex=game.cores.findIndex((c)=>c.x===nx&&c.y===ny);
+      if (coreIndex>=0) {
+        game.cores.splice(coreIndex,1);
+        p.carried++;
+        p.energy=Math.min(100,p.energy+18);
+        if(charId==="magnetist") p.energy=Math.min(100,p.energy+8);
+      }
+      const base=myBase(pid);
+      if(nx===base.x&&ny===base.y&&p.carried>0) {
+        p.score+=p.carried;
+        p.energy=Math.min(100,p.energy+p.carried*9);
+        toast("+"+p.carried+" núcleo(s) entregados");
+        p.carried=0;
+      }
+      sendState();
+      renderGame();
+    }
+    function playerAction(pid,kind) {
+      if (!game || game.finished) return;
+      const now=Date.now(), p=game.players[pid], charId=game.playersMeta[pid]?.character || "guardian";
+      if (!p || p.jammedUntil>now) { toast("Tus sistemas están interferidos."); return; }
+      if (kind==="active") {
+        if(now-p.lastActiveAt<6500){toast("Habilidad recargando.");return;}
+        p.lastActiveAt=now;
+        if(charId==="guardian") p.shieldUntil=now+3200;
+        else if(charId==="runner") {
+          const dir=game.playersMeta[pid].direction || (pid===game.hostId? "right":"left");
+          const vec=dir==="left"?[-1,0]:dir==="right"?[1,0]:dir==="up"?[0,-1]:[0,1];
+          for(let i=0;i<3;i++) applyStep(pid,vec[0],vec[1],true);
+          p.speedUntil=now+1500;
+        } else if(charId==="engineer") {
+          game.traps.push({x:p.x,y:p.y,owner:pid,expires:now+12000});
+          toast("Mina colocada.");
+        } else if(charId==="magnetist") collectNearby(pid,2);
+        else if(charId==="illusionist") {p.shieldUntil=now+1800;p.invisibleUntil=now+2600;}
+        else if(charId==="saboteur") affectRival(pid,(r)=>{r.jammedUntil=now+2200;r.stunUntil=now+1000;});
+        else if(charId==="portalero") teleportToBase(pid);
+      } else if (kind==="ultimate") {
+        if(p.energy<100){toast("Necesitas 100 de energía para la definitiva.");return;}
+        p.energy=0;
+        if(charId==="guardian") p.shieldUntil=now+6200;
+        else if(charId==="runner") p.speedUntil=now+6000;
+        else if(charId==="engineer") affectRival(pid,(r)=>{r.stunUntil=now+2000;});
+        else if(charId==="magnetist") collectNearby(pid,3);
+        else if(charId==="illusionist") {p.invisibleUntil=now+4200;p.shieldUntil=now+4200;}
+        else if(charId==="saboteur") affectRival(pid,(r)=>{r.jammedUntil=now+3200;r.stunUntil=now+1600;});
+        else if(charId==="portalero") teleportToBase(pid);
+      }
+      sendState();renderGame();
+    }
+    function affectRival(pid,fn) {
+      const other=pid===game.hostId?game.guestId:game.hostId;
+      if(game.players[other]) fn(game.players[other]);
+    }
+    function collectNearby(pid,radius) {
+      const p=game.players[pid], taken=game.cores.filter((c)=>Math.abs(c.x-p.x)+Math.abs(c.y-p.y)<=radius);
+      if(!taken.length){toast("No hay núcleos cerca.");return;}
+      p.carried+=taken.length;p.energy=Math.min(100,p.energy+taken.length*18);
+      const ids=new Set(taken.map((c)=>c.id));game.cores=game.cores.filter((c)=>!ids.has(c.id));
+      toast("¡El imán atrajo "+taken.length+" núcleo(s)!");
+    }
+    function teleportToBase(pid) {
+      const p=game.players[pid],b=myBase(pid);p.x=pid===game.hostId?1:10;p.y=b.y;
+      if(p.carried>0){p.score+=p.carried;p.energy=Math.min(100,p.energy+p.carried*9);p.carried=0;}
+      toast("¡Portal activado!");
+    }
+    function hostTick() {
+      if(!game || game.finished || !isHost) return;
+      game.timeLeft=Math.max(0,game.timeLeft-1);
+      if(game.cores.length<4) spawnCore();
+      game.traps=game.traps.filter((t)=>t.expires>Date.now());
+      if(game.timeLeft<=0){finishGame();return;}
+      sendState();renderGame();
+    }
+    function snapshotForGuest() {
+      return JSON.parse(JSON.stringify(game));
+    }
+    function sendState() {
+      if(!isHost || !game) return;
+      sendMessage({type:"state",game:snapshotForGuest()});
+    }
+    function handleMessage(message) {
+      if(!message || !room) return;
+      if(message.type==="move" && isHost && message.userId===room.guest_id && game) {
+        game.playersMeta[message.userId].direction=message.direction;
+        applyStep(message.userId,message.dx,message.dy);
+      }
+      if(message.type==="active" && isHost && message.userId===room.guest_id && game) playerAction(message.userId,"active");
+      if(message.type==="ultimate" && isHost && message.userId===room.guest_id && game) playerAction(message.userId,"ultimate");
+      if(message.type==="state" && !isHost) {game=message.game;renderGame();}
+      if(message.type==="game_over" && !isHost) {
+        game=message.game;renderGame();saveResult();
+      }
+      if(message.type==="start" && !isHost) {game=message.game;renderGame();}
+    }
+    function move(dx,dy) {
+      if(!game || game.finished) return;
+      const now=Date.now();if(now-lastGuestMove<105)return;lastGuestMove=now;
+      const direction=dx<0?"left":dx>0?"right":dy<0?"up":"down";
+      if(isHost){game.playersMeta[user.id].direction=direction;applyStep(user.id,dx,dy);}
+      else sendMessage({type:"move",userId:user.id,dx,dy,direction});
+    }
+    function action(kind) {
+      if(!game || game.finished) return;
+      const now=Date.now();if(now-lastGuestAbility<250)return;lastGuestAbility=now;
+      if(isHost) playerAction(user.id,kind);
+      else sendMessage({type:kind,userId:user.id});
+    }
+    function finishGame() {
+      if(!isHost || !game || game.finished) return;
+      game.finished=true;
+      clearInterval(tickTimer);
+      sendMessage({type:"game_over",game:snapshotForGuest()});
+      renderGame();
+      saveResult();
+    }
+    async function saveResult() {
+      if(resultSaved || savingResult || !game || !game.finished) return;
+      savingResult=true;
+      const mine=game.players[user.id], rivalId=user.id===game.hostId?game.guestId:game.hostId;
+      const rival=game.players[rivalId];
+      const won=mine.score>rival.score;
+      try {
+        const {data,error}=await supabase.rpc("record_match_result",{
+          p_code:room.code,p_cores:mine.score,p_won:won,
+          p_character:game.playersMeta[user.id]?.character || selectedCharacter
+        });
+        if(error) throw error;
+        if(data) profile=data;
+        resultSaved=true;
+        $("resultPanel").classList.remove("hidden");
+        $("resultPanel").innerHTML='<div class="eyebrow">Resultado guardado</div><h2>'+(won?"¡Victoria!":mine.score===rival.score?"Empate":"Sigue intentando")+'</h2><p class="muted small">Tu progreso y tus logros se han actualizado.</p>';
+      } catch(error) {
+        $("resultPanel").classList.remove("hidden");
+        $("resultPanel").innerHTML='<div class="eyebrow">Resultado de partida</div><h2>'+(won?"¡Victoria!":mine.score===rival.score?"Empate":"Partida terminada")+'</h2><p class="muted small">No se pudo guardar el progreso: '+escapeHtml(error.message)+'</p><button class="btn secondary" id="retrySave">Reintentar guardado</button>';
+        $("retrySave").addEventListener("click",()=>{resultSaved=false;saveResult();});
+      } finally {savingResult=false;}
+    }
+    function renderGame() {
+      if(!game) {
+        $("board").innerHTML="";
+        $("timer").textContent="01:30";
+        $("gameMessage").textContent="Esperando a que entre tu rival…";
+        $("skillPanel").innerHTML="";
+        $("playersPanel").innerHTML="";
+        return;
+      }
+      const mine=game.players[user.id];
+      const rivalId=user.id===game.hostId?game.guestId:game.hostId;
+      const rival=game.players[rivalId];
+      if(!mine || !rival) return;
+      const cells=[];
+      const mineMeta=game.playersMeta[user.id] || {username:profile.username,character:selectedCharacter};
+      const rivalMeta=game.playersMeta[rivalId] || {username:"Rival",character:"guardian"};
+      for(let y=0;y<8;y++) for(let x=0;x<12;x++) {
+        const base1=x===0&&y===3,base2=x===11&&y===4;
+        const core=game.cores.some((c)=>c.x===x&&c.y===y);
+        const trap=game.traps.some((t)=>t.x===x&&t.y===y);
+        let content="";
+        if(game.players[game.hostId].x===x&&game.players[game.hostId].y===y) {
+          const p=game.players[game.hostId], ch=characters.find((c)=>c.id===game.playersMeta[game.hostId].character);
+          content='<span class="pawn '+(game.hostId===user.id?"me":"enemy")+' '+(p.shieldUntil>Date.now()?"shield":"")+'">'+ch.icon+'</span>';
+        } else if(game.players[game.guestId].x===x&&game.players[game.guestId].y===y) {
+          const p=game.players[game.guestId], ch=characters.find((c)=>c.id===game.playersMeta[game.guestId].character);
+          content='<span class="pawn '+(game.guestId===user.id?"me":"enemy")+' '+(p.shieldUntil>Date.now()?"shield":"")+'">'+ch.icon+'</span>';
+        }
+        cells.push('<div class="cell '+(base1?"base1 ":"")+(base2?"base2 ":"")+(core?"core ":"")+(trap?"trap":"")+'">'+content+'</div>');
+      }
+      $("board").innerHTML=cells.join("");
+      const seconds=game.timeLeft||0;
+      $("timer").textContent=String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0");
+      $("gameMessage").textContent=game.finished?"Partida finalizada":mine.stunUntil>Date.now()?"¡Estás aturdido!":mine.carried>0?"Lleva "+mine.carried+" núcleo(s) a tu base.":"Busca núcleos y regresa a tu base.";
+      const cards=[
+        {id:user.id,meta:mineMeta,p:mine,isMe:true},
+        {id:rivalId,meta:rivalMeta,p:rival,isMe:false}
+      ];
+      $("playersPanel").innerHTML=cards.map((c)=>'<div class="playercard '+(c.isMe?"active":"")+'"><div class="playerline"><b>'+escapeHtml(c.meta.username)+(c.isMe?" (Tú)":"")+'</b><span>'+characters.find((x)=>x.id===c.meta.character).icon+'</span></div><div class="row between small muted" style="margin-top:8px"><span>'+escapeHtml(characters.find((x)=>x.id===c.meta.character).name)+'</span><b style="color:var(--gold)">'+c.p.score+' entregados</b></div><div class="row between small" style="margin-top:6px"><span class="muted">Transporta</span><b>'+c.p.carried+'</b></div></div>').join("");
+      const char=characters.find((c)=>c.id===mineMeta.character)||characters[0];
+      const activeRemaining=Math.max(0,Math.ceil((6500-(Date.now()-mine.lastActiveAt))/1000));
+      $("skillPanel").innerHTML='<p class="muted small" style="margin:8px 0"><b>Pasiva:</b> '+escapeHtml(char.passive)+'</p>'+
+        '<button class="skillbtn" id="activeSkill" '+(game.finished||mine.jammedUntil>Date.now()||activeRemaining>0?"disabled":"")+'><strong>E · '+escapeHtml(char.active)+(activeRemaining>0?" · "+activeRemaining+"s":"")+'</strong>'+escapeHtml(char.activeDesc)+'</button>'+
+        '<div class="energy"><i style="width:'+mine.energy+'%"></i></div><div class="row between small muted"><span>Energía definitiva</span><b>'+mine.energy+' / 100</b></div>'+
+        '<button class="skillbtn" id="ultimateSkill" '+(game.finished||mine.energy<100||mine.jammedUntil>Date.now()?"disabled":"")+'><strong>ESPACIO · '+escapeHtml(char.ultimate)+'</strong>'+escapeHtml(char.ultimateDesc)+'</button>';
+      $("activeSkill").addEventListener("click",()=>action("active"));
+      $("ultimateSkill").addEventListener("click",()=>action("ultimate"));
+      if(game.finished) {
+        const other=rival.score;
+        $("resultPanel").classList.remove("hidden");
+        if(!$("resultPanel").querySelector("#retrySave")) {
+          const mineWon=mine.score>other;
+          $("resultPanel").innerHTML='<div class="eyebrow">Marcador final</div><h2>'+(mineWon?"¡Victoria!":mine.score===other?"Empate":"¡Buena partida!")+'</h2><p class="muted small">'+mineMeta.username+': '+mine.score+' · '+rivalMeta.username+': '+other+'</p><button class="btn primary" id="backHomeBtn">Volver al centro de mando</button>';
+          $("backHomeBtn").addEventListener("click",()=>leaveRoom(true));
+        }
+      }
+    }
+    async function leaveRoom(goHome=true) {
+      clearInterval(tickTimer);tickTimer=null;
+      if(channel){await supabase.removeChannel(channel);channel=null;}
+      room=null;game=null;isHost=false;resultSaved=false;savingResult=false;
+      if(goHome && user){await loadHome();}
+    }
+    function handleKey(event) {
+      if(["INPUT","TEXTAREA"].includes(document.activeElement?.tagName)) return;
+      const k=event.key.toLowerCase();
+      const dirs={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]};
+      if(dirs[k]){event.preventDefault();move(dirs[k][0],dirs[k][1]);}
+      else if(k==="e"){event.preventDefault();action("active");}
+      else if(k===" "){event.preventDefault();action("ultimate");}
+    }
+    $("loginTab").addEventListener("click",()=>setAuthMode("login"));
+    $("signupTab").addEventListener("click",()=>setAuthMode("signup"));
+    $("authForm").addEventListener("submit",handleAuth);
+    $("logoutBtn").addEventListener("click",logout);
+    $("createRoomBtn").addEventListener("click",createRoom);
+    $("joinRoomBtn").addEventListener("click",joinRoom);
+    $("leaveRoomBtn").addEventListener("click",()=>leaveRoom(true));
+    $("roomCodeInput").addEventListener("input",(e)=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-F0-9]/g,"").slice(0,8);});
+    $("roomCodeDisplay").addEventListener("click",()=>{if(room?.code)navigator.clipboard?.writeText(room.code).then(()=>toast("Código copiado."));});
+    document.querySelectorAll("[data-move]").forEach((button)=>button.addEventListener("click",()=>{const v=button.dataset.move.split(",").map(Number);move(v[0],v[1]);}));
+    window.addEventListener("keydown",handleKey);
+    window.addEventListener("beforeunload",()=>{if(channel)supabase.removeChannel(channel);});
+
+    async function boot() {
+      try {
+        const {data:{session},error}=await supabase.auth.getSession();
+        if(error) throw error;
+        setConnection("Conectado",true);
+        if(session?.user) {user=session.user;await loadHome();}
+      } catch(error) {
+        setConnection("Sin conexión",false);
+        notice("authNotice","No se pudo conectar con el servidor: "+error.message,"error");
+      }
+    }
+    supabase.auth.onAuthStateChange(async(event,session)=>{
+      if(event==="SIGNED_OUT"){user=null;}
+      if(event==="SIGNED_IN" && session?.user && !user){
+        user=session.user;
+        try{await loadHome();}catch(error){notice("authNotice",error.message,"error");}
+      }
+    });
+    boot();
+  </script>
+</body>
+</html>
