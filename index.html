@@ -83,7 +83,7 @@
           <div class="row between" style="margin-bottom:10px"><span class="eyebrow">Campo de energía</span><span class="tag" id="durationBadge">12 × 8 · 05:00</span></div>
           <div id="board" class="board" aria-label="Tablero de juego"></div>
           <div class="boardlegend"><span>🟡 Núcleo</span><span>🛡️ Tu base</span><span>💜 Base rival</span><span>✳ Trampa</span><span>🎁 Objeto (E recoger · Q usar)</span></div>
-          <div class="mobile-controls" aria-label="Controles táctiles"><span></span><button data-move="0,-1">↑</button><span></span><button data-move="-1,0">←</button><button data-move="0,1">↓</button><button data-move="1,0">→</button></div>
+          <div class="mobile-controls" aria-label="Controles táctiles"><span></span><button data-move="0,-1">↑</button><span></span><button data-move="-1,0">←</button><button data-move="0,1">↓</button><button data-move="1,0">→</button><button data-item-action="pickup">E · Recoger</button><button data-item-action="use">Q · Usar</button><span></span></div>
           <p class="muted small" style="text-align:center;margin:3px 0 0">Mover: WASD / flechas · Habilidad: F · Recoger objeto: E · Usar objeto: Q · Definitiva: ESPACIO</p>
         </div>
         <aside class="game-side">
@@ -712,6 +712,7 @@
     $("roomCodeInput").addEventListener("input",(e)=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-F0-9]/g,"").slice(0,8);});
     $("roomCodeDisplay").addEventListener("click",()=>{if(room?.code)navigator.clipboard?.writeText(room.code).then(()=>toast("Código copiado."));});
     document.querySelectorAll("[data-move]").forEach((button)=>button.addEventListener("click",()=>{const v=button.dataset.move.split(",").map(Number);move(v[0],v[1]);}));
+    document.querySelectorAll("[data-item-action]").forEach((button)=>button.addEventListener("click",()=>itemAction(button.dataset.itemAction)));
     window.addEventListener("keydown",handleKey);
     window.addEventListener("beforeunload",()=>{if(channel)supabase.removeChannel(channel);});
 
