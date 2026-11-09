@@ -742,12 +742,11 @@
         notice("authNotice","No se pudo conectar con el servidor: "+error.message,"error");
       }
     }
-    supabase.auth.onAuthStateChange(async(event,session)=>{
+    // Keep this callback synchronous: Supabase warns against awaiting other
+    // Supabase requests inside onAuthStateChange because it can hold the auth lock.
+    supabase.auth.onAuthStateChange((event,session)=>{
       if(event==="SIGNED_OUT"){user=null;}
-      if(event==="SIGNED_IN" && session?.user && !user){
-        user=session.user;
-        try{await loadHome();}catch(error){notice("authNotice",error.message,"error");}
-      }
+      if(event==="SIGNED_IN" && session?.user){user=session.user;}
     });
     boot();
   </script>
