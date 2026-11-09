@@ -446,7 +446,9 @@
     }
     function affectRival(pid,fn) {
       const other=pid===game.hostId?game.guestId:game.hostId;
-      if(game.players[other]) fn(game.players[other]);
+      const source=game.players[pid], target=game.players[other];
+      if(target && Math.abs(source.x-target.x)+Math.abs(source.y-target.y)<=5) fn(target);
+      else toast("El rival está fuera del alcance de tu habilidad.");
     }
     function collectNearby(pid,radius) {
       const p=game.players[pid], taken=game.cores.filter((c)=>Math.abs(c.x-p.x)+Math.abs(c.y-p.y)<=radius);
@@ -554,12 +556,16 @@
         const core=game.cores.some((c)=>c.x===x&&c.y===y);
         const trap=game.traps.some((t)=>t.x===x&&t.y===y);
         let content="";
-        if(game.players[game.hostId].x===x&&game.players[game.hostId].y===y) {
-          const p=game.players[game.hostId], ch=characters.find((c)=>c.id===game.playersMeta[game.hostId].character);
-          content='<span class="pawn '+(game.hostId===user.id?"me":"enemy")+' '+(p.shieldUntil>Date.now()?"shield":"")+'">'+ch.icon+'</span>';
-        } else if(game.players[game.guestId].x===x&&game.players[game.guestId].y===y) {
-          const p=game.players[game.guestId], ch=characters.find((c)=>c.id===game.playersMeta[game.guestId].character);
-          content='<span class="pawn '+(game.guestId===user.id?"me":"enemy")+' '+(p.shieldUntil>Date.now()?"shield":"")+'">'+ch.icon+'</span>';
+        const hostPlayer=game.players[game.hostId], guestPlayer=game.players[game.guestId];
+        const hostMeta=game.playersMeta[game.hostId], guestMeta=game.playersMeta[game.guestId];
+        const hostVisible=game.hostId===user.id || (hostPlayer.invisibleUntil<=Date.now() && !(hostMeta.character==="illusionist" && hostPlayer.carried===0));
+        const guestVisible=game.guestId===user.id || (guestPlayer.invisibleUntil<=Date.now() && !(guestMeta.character==="illusionist" && guestPlayer.carried===0));
+        if(hostPlayer.x===x&&hostPlayer.y===y&&hostVisible) {
+          const ch=characters.find((c)=>c.id===hostMeta.character);
+          content='<span class="pawn '+(game.hostId===user.id?"me":"enemy")+' '+(hostPlayer.shieldUntil>Date.now()?"shield":"")+'">'+ch.icon+'</span>';
+        } else if(guestPlayer.x===x&&guestPlayer.y===y&&guestVisible) {
+          const ch=characters.find((c)=>c.id===guestMeta.character);
+          content='<span class="pawn '+(game.guestId===user.id?"me":"enemy")+' '+(guestPlayer.shieldUntil>Date.now()?"shield":"")+'">'+ch.icon+'</span>';
         }
         cells.push('<div class="cell '+(base1?"base1 ":"")+(base2?"base2 ":"")+(core?"core ":"")+(trap?"trap":"")+'">'+content+'</div>');
       }
