@@ -221,12 +221,19 @@
       try {
         if (authMode === "signup") {
           if (username.length < 3) throw new Error("Tu nombre debe tener al menos 3 caracteres.");
-          const {data,error} = await supabase.auth.signUp({email,password,options:{data:{username}}});
+          const {data,error} = await supabase.auth.signUp({
+            email,
+            password,
+            options:{
+              data:{username},
+              emailRedirectTo: window.location.origin
+            }
+          });
           if (error) throw error;
           if (!data.session) {
-            notice("authNotice","Cuenta creada, pero falta confirmar el correo. Abre el mensaje que enviamos a "+email+" y pulsa el enlace. Después podrás iniciar sesión.","success");
-            $("confirmActions").classList.remove("hidden");
             setAuthMode("login");
+            $("confirmActions").classList.remove("hidden");
+            notice("authNotice","¡Listo! Te enviamos un correo de confirmación a "+email+". Abre ese mensaje y pulsa «Confirmar mi correo» para activar tu cuenta. Si no lo ves, revisa Spam o solicita que lo reenviemos.","success");
           } else {
             user = data.user;
             await loadHome();
@@ -641,6 +648,17 @@
 
     async function boot() {
       try {
+        const params = new URLSearchParams(window.location.search);
+        const authError = params.get("error_description");
+        if (authError) {
+          const code = params.get("error_code") || "";
+          const friendly = code === "otp_expired"
+            ? "El enlace de confirmación venció o ya fue utilizado. Solicita uno nuevo con «Reenviar correo de confirmación»."
+            : "No se pudo confirmar el correo. Solicita un nuevo enlace e inténtalo otra vez.";
+          notice("authNotice",friendly,"error");
+          $("confirmActions").classList.remove("hidden");
+          window.history.replaceState({},document.title,window.location.pathname);
+        }
         const {data:{session},error}=await supabase.auth.getSession();
         if(error) throw error;
         setConnection("Conectado",true);
