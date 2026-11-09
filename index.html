@@ -84,7 +84,7 @@
           <div id="board" class="board" aria-label="Tablero de juego"></div>
           <div class="boardlegend"><span>🟡 Núcleo</span><span>🛡️ Tu base</span><span>💜 Base rival</span><span>✳ Trampa</span><span>🎁 Objeto (E recoger · Q usar)</span></div>
           <div class="mobile-controls" aria-label="Controles táctiles"><span></span><button data-move="0,-1">↑</button><span></span><button data-move="-1,0">←</button><button data-move="0,1">↓</button><button data-move="1,0">→</button></div>
-          <p class="muted small" style="text-align:center;margin:3px 0 0">Mover: WASD / flechas · Habilidad: E · Objeto: Q · Definitiva: ESPACIO</p>
+          <p class="muted small" style="text-align:center;margin:3px 0 0">Mover: WASD / flechas · Habilidad: F · Recoger objeto: E · Usar objeto: Q · Definitiva: ESPACIO</p>
         </div>
         <aside class="game-side">
           <div class="playercard active"><div class="playerline"><b>⏱ Tiempo</b><span id="timer" class="timer">01:30</span></div><p id="gameMessage" class="muted small" style="margin:3px 0 0">Esperando jugadores…</p></div>
@@ -384,7 +384,7 @@
       toast("¡Partida iniciada! Buena suerte.");
     }
     function newPlayer(x,y) {
-      return {x,y,score:0,carried:0,energy:0,shieldUntil:0,stunUntil:0,speedUntil:0,invisibleUntil:0,jammedUntil:0,lastMoveAt:0,lastActiveAt:0,item:null};
+      return {x,y,score:0,carried:0,energy:0,shieldUntil:0,stunUntil:0,speedUntil:0,slowUntil:0,invisibleUntil:0,revealedUntil:0,jammedUntil:0,lastMoveAt:0,lastActiveAt:0,item:null};
     }
     const itemCatalog = {
       boost:{name:"Impulso",icon:"⚡",rarity:"Común",className:"common",description:"Aumenta tu velocidad durante 5 segundos."},
@@ -422,7 +422,7 @@
       if(type==="boost")p.speedUntil=now+5000;
       else if(type==="shield")p.shieldUntil=now+4000;
       else if(type==="magnet")collectNearby(pid,2);
-      else if(type==="snare"){if(enemy)enemy.speedUntil=Math.max(enemy.speedUntil,now+2200);}
+      else if(type==="snare"){if(enemy)enemy.slowUntil=Math.max(enemy.slowUntil,now+2200);}
       else if(type==="teleport"){const base=myBase(pid);p.x=pid===game.hostId?1:10;p.y=base.y;}
       else if(type==="mine"){game.traps.push({x:p.x,y:p.y,owner:pid,expires:now+15000});}
       else if(type==="drone"){if(enemy)enemy.revealedUntil=now+6000;}
@@ -444,7 +444,7 @@
       if (!force && p.stunUntil > now) return;
       const charId = game.playersMeta[pid]?.character || "guardian";
       const c = characters.find((x)=>x.id===charId) || characters[0];
-      const speed = p.speedUntil > now ? Math.max(100,c.speed*0.65) : c.speed;
+      const speed = p.slowUntil > now ? c.speed*1.7 : p.speedUntil > now ? Math.max(100,c.speed*0.65) : c.speed;
       if (!force && now-p.lastMoveAt < speed) return;
       const nx=Math.max(0,Math.min(11,p.x+dx)), ny=Math.max(0,Math.min(7,p.y+dy));
       const rivalId=pid===game.hostId?game.guestId:game.hostId;
@@ -631,8 +631,8 @@
         let content="";
         const hostPlayer=game.players[game.hostId], guestPlayer=game.players[game.guestId];
         const hostMeta=game.playersMeta[game.hostId], guestMeta=game.playersMeta[game.guestId];
-        const hostVisible=game.hostId===user.id || (hostPlayer.invisibleUntil<=Date.now() && !(hostMeta.character==="illusionist" && hostPlayer.carried===0));
-        const guestVisible=game.guestId===user.id || (guestPlayer.invisibleUntil<=Date.now() && !(guestMeta.character==="illusionist" && guestPlayer.carried===0));
+        const hostVisible=game.hostId===user.id || (hostPlayer.revealedUntil>Date.now() || (hostPlayer.invisibleUntil<=Date.now() && !(hostMeta.character==="illusionist" && hostPlayer.carried===0)));
+        const guestVisible=game.guestId===user.id || (guestPlayer.revealedUntil>Date.now() || (guestPlayer.invisibleUntil<=Date.now() && !(guestMeta.character==="illusionist" && guestPlayer.carried===0)));
         if(hostPlayer.x===x&&hostPlayer.y===y&&hostVisible) {
           const ch=characters.find((c)=>c.id===hostMeta.character);
           content='<span class="pawn '+(game.hostId===user.id?"me":"enemy")+' '+(hostPlayer.shieldUntil>Date.now()?"shield":"")+'">'+ch.icon+'</span>';
@@ -658,7 +658,7 @@
       const held=mine.item?itemCatalog[mine.item]:null;
       $("itemPanel").innerHTML=held?'<b class="rarity-'+held.className+'">'+held.icon+" "+escapeHtml(held.name)+" · "+held.rarity+'</b><p class="small" style="margin:5px 0">'+escapeHtml(held.description)+'</p><span class="muted small">Q · Usar objeto</span>':'<b>🎒 Inventario vacío</b><p class="small" style="margin:5px 0">Pisa un objeto del mapa y pulsa E para recogerlo.</p>';
       $("skillPanel").innerHTML='<p class="muted small" style="margin:8px 0"><b>Pasiva:</b> '+escapeHtml(char.passive)+'</p>'+
-        '<button class="skillbtn" id="activeSkill" '+(game.finished||mine.jammedUntil>Date.now()||activeRemaining>0?"disabled":"")+'><strong>E · '+escapeHtml(char.active)+(activeRemaining>0?" · "+activeRemaining+"s":"")+'</strong>'+escapeHtml(char.activeDesc)+'</button>'+
+        '<button class="skillbtn" id="activeSkill" '+(game.finished||mine.jammedUntil>Date.now()||activeRemaining>0?"disabled":"")+'><strong>F · '+escapeHtml(char.active)+(activeRemaining>0?" · "+activeRemaining+"s":"")+'</strong>'+escapeHtml(char.activeDesc)+'</button>'+
         '<div class="energy"><i style="width:'+mine.energy+'%"></i></div><div class="row between small muted"><span>Energía definitiva</span><b>'+mine.energy+' / 100</b></div>'+
         '<button class="skillbtn" id="ultimateSkill" '+(game.finished||mine.energy<100||mine.jammedUntil>Date.now()?"disabled":"")+'><strong>ESPACIO · '+escapeHtml(char.ultimate)+'</strong>'+escapeHtml(char.ultimateDesc)+'</button>';
       $("activeSkill").addEventListener("click",()=>action("active"));
@@ -686,6 +686,7 @@
       if(dirs[k]){event.preventDefault();move(dirs[k][0],dirs[k][1]);}
       else if(k==="e"){event.preventDefault();itemAction("pickup");}
       else if(k==="q"){event.preventDefault();itemAction("use");}
+      else if(k==="f"){event.preventDefault();action("active");}
       else if(k===" "){event.preventDefault();action("ultimate");}
     }
     $("loginTab").addEventListener("click",()=>setAuthMode("login"));
