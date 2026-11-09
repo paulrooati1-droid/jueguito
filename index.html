@@ -233,7 +233,8 @@
           if (!data.session) {
             setAuthMode("login");
             $("confirmActions").classList.remove("hidden");
-            notice("authNotice","¡Listo! Te enviamos un correo de confirmación a "+email+". Abre ese mensaje y pulsa «Confirmar mi correo» para activar tu cuenta. Si no lo ves, revisa Spam o solicita que lo reenviemos.","success");
+            notice("authNotice","¡Solicitud aceptada! Supabase confirmó que recibió el pedido de envío para "+email+". Revisa Entrada, Spam y Promociones. No cierres esta página hasta revisar el mensaje. Si no llega, espera antes de solicitar otro.","success");
+            $("authNotice").scrollIntoView({behavior:"smooth",block:"nearest"});
           } else {
             user = data.user;
             await loadHome();
@@ -245,8 +246,18 @@
           await loadHome();
         }
       } catch (error) {
-        notice("authNotice",error.message || "No se pudo completar el acceso.","error");
-        if (/email not confirmed/i.test(error.message || "")) $("confirmActions").classList.remove("hidden");
+        const rawMessage = error.message || "";
+        const rateLimited = /rate limit|too many requests|email rate limit|over_email_send_rate_limit/i.test(rawMessage);
+        if (rateLimited && authMode === "signup") {
+          notice("authNotice","Supabase ha limitado temporalmente el envío de correos. Esta vez NO se envió el correo de confirmación, por eso todavía no puedes activar la cuenta. No vuelvas a pulsar «Crear mi cuenta» ni «Reenviar» repetidamente. Espera a que se restablezca el límite y vuelve a intentarlo. Si ya habías creado la cuenta, cambia a «Iniciar sesión» y usa «Reenviar correo» solo cuando el límite se haya liberado.","error");
+          $("confirmActions").classList.add("hidden");
+        } else if (rateLimited) {
+          notice("authNotice","Supabase bloqueó temporalmente el envío por demasiadas solicitudes. No se ha enviado otro correo. Espera a que se restablezca el límite antes de volver a intentarlo.","error");
+        } else {
+          notice("authNotice",rawMessage || "No se pudo completar el acceso.","error");
+        }
+        if (/email not confirmed/i.test(rawMessage)) $("confirmActions").classList.remove("hidden");
+        $("authNotice").scrollIntoView({behavior:"smooth",block:"nearest"});
       } finally {
         $("authSubmit").disabled = false;
         $("authSubmit").textContent = authMode === "signup" ? "Crear mi cuenta" : "Entrar a la arena";
