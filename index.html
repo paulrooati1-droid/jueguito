@@ -648,15 +648,19 @@
 
     async function boot() {
       try {
-        const params = new URLSearchParams(window.location.search);
-        const authError = params.get("error_description");
+        const queryParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.slice(1));
+        const authError = queryParams.get("error_description") || hashParams.get("error_description");
         if (authError) {
-          const code = params.get("error_code") || "";
+          const code = queryParams.get("error_code") || hashParams.get("error_code") || "";
           const friendly = code === "otp_expired"
             ? "El enlace de confirmación venció o ya fue utilizado. Solicita uno nuevo con «Reenviar correo de confirmación»."
             : "No se pudo confirmar el correo. Solicita un nuevo enlace e inténtalo otra vez.";
           notice("authNotice",friendly,"error");
           $("confirmActions").classList.remove("hidden");
+          window.history.replaceState({},document.title,window.location.pathname);
+        } else if (hashParams.get("type") === "signup" || hashParams.get("type") === "email") {
+          notice("authNotice","¡Correo confirmado correctamente! Ya puedes iniciar sesión en NEXUS ARENA.","success");
           window.history.replaceState({},document.title,window.location.pathname);
         }
         const {data:{session},error}=await supabase.auth.getSession();
